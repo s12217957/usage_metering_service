@@ -1,8 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import {
-  createAccountWithPlan,
-  findPredefinedPlan,
-} from "../repositories/accounts.repository";
+import { createAccountWithPlan } from "../repositories/accounts.repository";
+import { findPredefinedPlan } from "../repositories/plans.repository";
 
 export async function registerAccount(name: string) {
   const starterPlan = await findPredefinedPlan("Starter", "account");

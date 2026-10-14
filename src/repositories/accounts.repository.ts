@@ -1,21 +1,15 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { accountPlanAssignments, accounts, plans } from "../schema";
+import { accountPlanAssignments, accounts } from "../schema";
 
-export async function findPredefinedPlan(name: string, scope: string) {
-  const [plan] = await db
-    .select({ id: plans.id })
-    .from(plans)
-    .where(
-      and(
-        eq(plans.name, name),
-        eq(plans.scope, scope),
-        eq(plans.isPredefined, true),
-      ),
-    )
+export async function findAccountByApiKeyHash(apiKeyHash: string) {
+  const [account] = await db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(eq(accounts.apiKeyHash, apiKeyHash))
     .limit(1);
 
-  return plan;
+  return account;
 }
 
 export async function createAccountWithPlan(
