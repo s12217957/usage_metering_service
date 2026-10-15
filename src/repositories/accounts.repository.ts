@@ -35,3 +35,21 @@ export async function createAccountWithPlan(
     return account;
   });
 }
+
+
+export async function updateAccountPlan(accountId: string, planId: string) {
+  const [assignment] = await db
+    .update(accountPlanAssignments)
+    .set({ planId })
+    .where(eq(accountPlanAssignments.accountId, accountId))
+    .returning({
+      accountId: accountPlanAssignments.accountId,
+      planId: accountPlanAssignments.planId,
+    });
+
+  if (!assignment) {
+    throw new Error("Account plan assignment was not found");
+  }
+
+  return assignment;
+}

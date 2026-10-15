@@ -11,6 +11,7 @@ import {
   users,
 } from "../schema";
 import { evaluateConsumption } from "../domain/consumptionRules";
+import { ConsumptionError } from "../domain/consumptionErrors";
 
 export async function processConsumptionRequest(input: {
   accountId: string;
@@ -28,7 +29,7 @@ export async function processConsumptionRequest(input: {
       .for("update");
 
     if (!account) {
-      throw new Error("Account not found");
+      throw new ConsumptionError("ACCOUNT_NOT_FOUND");
     }
 
     const [user] = await tx
@@ -43,7 +44,7 @@ export async function processConsumptionRequest(input: {
       .limit(1);
 
     if (!user) {
-      throw new Error("User not found in this account");
+      throw new ConsumptionError("USER_NOT_FOUND");
     }
 
     const [previousRequest] = await tx
@@ -68,7 +69,7 @@ export async function processConsumptionRequest(input: {
         previousRequest.userId !== user.id ||
         previousRequest.units !== units
       ) {
-        throw new Error("Request ID was already used with different data");
+        throw new ConsumptionError("REQUEST_ID_CONFLICT");
       }
 
       return {

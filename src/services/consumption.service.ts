@@ -2,6 +2,9 @@ import {
   findConsumptionHistory,
   processConsumptionRequest,
 } from "../repositories/consumption.repository";
+import { ConsumptionError } from "../domain/consumptionErrors";
+import { AppError } from "../errors/AppError";
+
 type ConsumeUnitsInput = {
   accountId: string;
   externalId: string;
@@ -10,7 +13,29 @@ type ConsumeUnitsInput = {
 };
 
 export async function consumeUnits(input: ConsumeUnitsInput) {
-  const result = await processConsumptionRequest(input);
+  let result;
+
+  try {
+    result = await processConsumptionRequest(input);
+  } catch (error) {
+    if (error instanceof ConsumptionError) {
+      switch (error.code) {
+        case "ACCOUNT_NOT_FOUND":
+          throw new AppError(404, "Account not found");
+
+        case "USER_NOT_FOUND":
+          throw new AppError(404, "User not found in this account");
+
+        case "REQUEST_ID_CONFLICT":
+          throw new AppError(
+            409,
+            "Request ID was already used with different data",
+          );
+      }
+    }
+
+    throw error;
+  }
 
   return {
     requestId: input.requestId,

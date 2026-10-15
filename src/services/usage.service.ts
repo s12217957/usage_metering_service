@@ -1,19 +1,49 @@
+import { AppError } from "../errors/AppError";
 import { findCurrentUsage } from "../repositories/usage.repository";
 
-export async function getCurrentUsage(accountId: string, externalId: string) {
-  const periodStart = `${new Date().toISOString().slice(0, 7)}-01`;
+export async function getCurrentUsage(
+  accountId: string,
+  externalId: string,
+  period?: string,
+) {
+  const currentPeriod = new Date().toISOString().slice(0, 7);
+  const requestedPeriod = period ?? currentPeriod;
+
+  if (requestedPeriod > currentPeriod) {
+    throw new AppError(400, "Future usage periods are not available");
+  }
+
+  const periodStart = `${requestedPeriod}-01`;
+
   const { accountUsage, userUsage } = await findCurrentUsage(
     accountId,
     externalId,
     periodStart,
   );
 
-  if (!accountUsage) {
-    throw new Error("Account plan assignment is missing");
+  if (!userUsage) {
+    throw new AppError(404, "User not found in this account");
   }
 
-  if (!userUsage) {
-    throw new Error("User not found in this account");
+  const accountConsumedUnits = accountUsage?.consumedUnits ?? 0;
+  const userConsumedUnits = userUsage.consumedUnits ?? 0;
+
+
+  if (requestedPeriod < currentPeriod) {
+    return {
+      periodStart,
+      account: {
+        consumedUnits: accountConsumedUnits,
+      },
+      user: {
+        consumedUnits: userConsumedUnits,
+      },
+    };
+  }
+
+
+  if (!accountUsage) {
+    throw new Error("Account plan assignment is missing");
   }
 
   if (
@@ -22,9 +52,6 @@ export async function getCurrentUsage(accountId: string, externalId: string) {
   ) {
     throw new Error("User plan assignment is missing");
   }
-
-  const accountConsumedUnits = accountUsage.consumedUnits ?? 0;
-  const userConsumedUnits = userUsage.consumedUnits ?? 0;
 
   return {
     periodStart,
