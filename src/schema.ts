@@ -8,7 +8,10 @@ import {
   unique,
   date,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+
 
 export const accounts = pgTable("accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -28,7 +31,13 @@ export const plans = pgTable("plans", {
   ownerAccountId: uuid("owner_account_id").references(() => accounts.id),
   isPredefined: boolean("is_predefined").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+  },
+  (table) => [
+    uniqueIndex("plans_predefined_name_scope_unique")
+      .on(table.name, table.scope)
+      .where(sql`${table.isPredefined} = true`),
+  ],
+);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),

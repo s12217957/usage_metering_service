@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "plans_predefined_name_scope_unique" ON "plans" USING btree ("name","scope") WHERE "plans"."is_predefined" = true;

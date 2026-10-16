@@ -1,4 +1,3 @@
-import { and, eq } from "drizzle-orm";
 import { db } from "./db";
 import { plans } from "./schema";
 
@@ -31,24 +30,11 @@ const predefinedPlans = [
 
 export async function seedPredefinedPlans() {
   for (const plan of predefinedPlans) {
-    const existing = await db
-      .select({ id: plans.id })
-      .from(plans)
-      .where(
-        and(
-          eq(plans.name, plan.name),
-          eq(plans.scope, plan.scope),
-          eq(plans.isPredefined, true),
-        ),
-      )
-      .limit(1);
-
-    if (existing.length === 0) {
-      await db.insert(plans).values({
-        ...plan,
-        ownerAccountId: null,
-        isPredefined: true,
-      });
-    }
+    await db.insert(plans).values({
+      ...plan,
+      ownerAccountId: null,
+      isPredefined: true,
+    })
+    .onConflictDoNothing();
   }
 }
