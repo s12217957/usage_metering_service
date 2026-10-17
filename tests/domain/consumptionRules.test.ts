@@ -113,24 +113,24 @@ describe("evaluateConsumption", () => {
   });
 
   it("accepts when the request uses the exact remaining limits", () => {
-  const result = evaluateConsumption({
-    units: 20,
-    account: {
-      monthlyLimit: 100,
-      maxUnitsPerRequest: 20,
-      consumedUnits: 80,
-    },
-    user: {
-      monthlyLimit: 50,
-      maxUnitsPerRequest: 20,
-      consumedUnits: 30,
-    },
-  });
+    const result = evaluateConsumption({
+      units: 20,
+      account: {
+        monthlyLimit: 100,
+        maxUnitsPerRequest: 20,
+        consumedUnits: 80,
+      },
+      user: {
+        monthlyLimit: 50,
+        maxUnitsPerRequest: 20,
+        consumedUnits: 30,
+      },
+    });
 
-  expect(result).toEqual({
-    decision: "accepted",
-    rejectionLevel: null,
-    rejectionReason: null,
+    expect(result).toEqual({
+      decision: "accepted",
+      rejectionLevel: null,
+      rejectionReason: null,
+    });
   });
-});
 });

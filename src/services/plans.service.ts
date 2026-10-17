@@ -83,7 +83,7 @@ export async function editCustomPlan(
   const plan = await updateCustomPlan(accountId, planId, input);
 
   if (!plan) {
-    throw new AppError(404, "Custom plan not found for this account");  
+    throw new AppError(404, "Custom plan not found for this account");
   }
 
   return plan;
